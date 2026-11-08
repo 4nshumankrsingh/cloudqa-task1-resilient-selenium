@@ -21,6 +21,7 @@ public sealed class Candidate
     public string GroupText { get; set; } = "";
     public bool Visible { get; set; }
     public bool Enabled { get; set; }
+    public bool InComponent { get; set; }
 }
 
 public sealed record Scored(Candidate Candidate, int Score, string Why);

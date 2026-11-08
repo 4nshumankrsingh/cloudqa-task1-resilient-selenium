@@ -63,6 +63,8 @@ public static class Scorer
             Add("id", Pts(Match(c.Id, kw), 10, 6));
             Add("name", Pts(Match(c.Name, kw), 10, 6));
         }
+        // Fields inside custom elements are likely embedded demos; prefer the main document.
+        if (c.InComponent) Add("in-component", -20);
         return new Scored(c, score, string.Join(" ", why));
     }
 }
