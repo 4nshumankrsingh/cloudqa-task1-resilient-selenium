@@ -25,9 +25,20 @@ if (opt.Headless) chrome.AddArgument("--headless=new");
 using var driver = new ChromeDriver(chrome);
 
 var timeout = TimeSpan.FromSeconds(opt.TimeoutSeconds);
-driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
-try { driver.Navigate().GoToUrl(opt.Url); }
-catch (WebDriverTimeoutException) { Console.WriteLine("Note: page was slow to load; continuing with what has loaded."); }
+driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(20);
+
+var loaded = false;
+for (var attempt = 1; attempt <= 3 && !loaded; attempt++)
+{
+    try { driver.Navigate().GoToUrl(opt.Url); loaded = true; }
+    catch (WebDriverTimeoutException)
+    { Console.WriteLine($"Note: attempt {attempt}/3 timed out loading the page."); }
+}
+if (!loaded)
+{
+    Console.Error.WriteLine("Could not load the page after 3 attempts. Check your network and the URL.");
+    return 3;
+}
 
 try
 {
