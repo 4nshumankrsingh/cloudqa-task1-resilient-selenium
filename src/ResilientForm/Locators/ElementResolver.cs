@@ -13,12 +13,16 @@ public sealed class ElementResolver(IWebDriver driver, TimeSpan timeout, bool ve
     private const int MinMargin = 15;  // winner must lead the runner-up by this much
 
     public Scored? Last { get; private set; }
+    private string? _lastMiss;
 
     public IWebElement Resolve(FieldQuery q)
     {
+        _lastMiss = null;
         var wait = new WebDriverWait(driver, timeout) { PollingInterval = TimeSpan.FromMilliseconds(500) };
         wait.IgnoreExceptionTypes(typeof(ElementNotFoundException)); // ambiguity fails immediately
-        return wait.Until(_ => ResolveOnce(q));
+        try { return wait.Until(_ => ResolveOnce(q)); }
+        catch (WebDriverTimeoutException)
+        { throw new ElementNotFoundException(_lastMiss ?? $"Timed out waiting for '{q.Name}'."); }
     }
 
     private IWebElement ResolveOnce(FieldQuery q)
@@ -35,8 +39,10 @@ public sealed class ElementResolver(IWebDriver driver, TimeSpan timeout, bool ve
                 Console.WriteLine($"    {q.Name}: #{s.Candidate.Index} score {s.Score} [{s.Why}] id='{s.Candidate.Id}'");
 
         if (ranked.Count == 0 || ranked[0].Score < MinScore)
-            throw new ElementNotFoundException(
-                $"No confident match for '{q.Name}' (best score {(ranked.Count == 0 ? 0 : ranked[0].Score)}, need {MinScore}).");
+        {
+            _lastMiss = $"No confident match for '{q.Name}' (best score {(ranked.Count == 0 ? 0 : ranked[0].Score)}, need {MinScore}).";
+            throw new ElementNotFoundException(_lastMiss);
+        }
         if (ranked.Count > 1 && ranked[0].Score - ranked[1].Score < MinMargin)
             throw new AmbiguousFieldException(
                 $"Ambiguous match for '{q.Name}': top scores {ranked[0].Score} and {ranked[1].Score}.");
