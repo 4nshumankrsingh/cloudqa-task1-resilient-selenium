@@ -54,19 +54,11 @@ catch (WebDriverTimeoutException) { Console.WriteLine("Note: page did not settle
 var resolver = new ElementResolver(driver, timeout, opt.Verbose);
 var actions = new FormActions(driver, resolver);
 
-var firstName = new FieldQuery("First Name", FieldKind.Text,
-    Keywords: ["firstname", "fname", "givenname", "forename"],
-    Negatives: ["last", "sur", "middle", "nick", "user", "full"]);
-var gender = new FieldQuery("Gender", FieldKind.Radio,
-    Keywords: ["gender", "sex"], Negatives: [], OptionText: opt.Gender);
-var state = new FieldQuery("State", FieldKind.Select,
-    Keywords: ["state", "province", "region"], Negatives: ["country"]);
-
 var results = new[]
 {
-    actions.SetText(firstName, opt.FirstName),
-    actions.SelectRadio(gender),
-    actions.SelectDropdown(state, opt.State),
+    actions.SetText(FieldQueries.FirstName, opt.FirstName),
+    actions.SelectRadio(FieldQueries.Gender(opt.Gender)),
+    actions.SelectDropdown(FieldQueries.State, opt.State),
 };
 
 Console.WriteLine();

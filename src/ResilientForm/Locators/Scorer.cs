@@ -58,7 +58,7 @@ public static class Scorer
         {
             Add("label", Pts(Match(c.Label, kw), 60, 36));
             Add("aria", Pts(Match(c.AriaLabel, kw), 50, 30));
-            Add("near", Pts(Match(c.Near, kw), 30, 18));
+            Add("near", Pts(Match(c.Near, kw), 40, 18));
             Add("placeholder", Pts(Match(c.Placeholder, kw), 12, 7));
             Add("id", Pts(Match(c.Id, kw), 10, 6));
             Add("name", Pts(Match(c.Name, kw), 10, 6));
